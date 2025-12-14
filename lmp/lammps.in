@@ -1,0 +1,69 @@
+#
+
+units metal
+atom_style atomic
+boundary p p f
+
+
+variable a0_1 equal 1.0
+variable a0_2 equal 3.9
+
+# ratio
+variable x equal ${a0_1}/${a0_2}
+
+## maximal number of supercell size
+## this is kmax to fraction.py
+variable  replicate_max  equal 50
+
+variable h python frac_h
+variable k python frac_k
+python frac_h input 2 v_x ${replicate_max} return v_h format fii file fraction.py
+python frac_k input 2 v_x ${replicate_max} return v_k format fii file fraction.py
+
+python frac_h invoke
+python frac_k invoke
+
+print "x = ${x}"
+print "h = ${h}"
+print "k = ${k}"
+print "h/k = ${h}/${k}"
+
+variable hoverk equal ${h}*1.0/${k}
+variable diff equal ${hoverk}-${x}
+print "lattice mismatch err=${diff}"
+
+
+variable ka0_1 equal ${k}*${a0_1}
+variable ha0_2 equal ${h}*${a0_2}
+
+print " k times a0_1 = ${ka0_1}"
+print " h times a0_2 = ${ha0_2}"
+
+# in units of distance
+region box block 0.0 ${ka0_1}  0.0 ${ka0_1}  0.0 ${ka0_1}
+create_box 2 box
+mass 1 1.0
+mass 2 1.0
+
+# lattice scale sets new units of distance!
+lattice bcc ${a0_1}
+variable zlat1_lo equal 0
+variable zlat1_hi equal 4
+
+print "zlat1_lo = ${zlat1_lo}"
+print "zlat1_hi = ${zlat1_hi}"
+region   lat1   block   0.0 ${ka0_1}   0.0 ${ka0_1}   ${zlat1_lo} ${zlat1_hi}
+create_atoms 1 region lat1
+
+
+variable zlat2_lo equal ${zlat1_hi}/${a0_2}*${a0_1}+0.0
+# origin keyword shifts the unitcell, new scale=new units
+lattice bcc ${a0_2} origin 0.5 0.5 0.5
+variable zlat2_hi equal ${zlat2_lo}+4
+
+print "zlat2_lo = ${zlat2_lo}"
+print "zlat2_hi = ${zlat2_hi}"
+region   lat2   block  0.0 INF   0.0 INF   ${zlat2_lo} ${zlat2_hi}
+create_atoms 2 region lat2
+
+write_data tt.dat
