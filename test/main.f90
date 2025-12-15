@@ -18,6 +18,7 @@ program main
   integer :: n_layers_a, n_layers_b
   real(rp) :: interlattice_dist
   real(rp) :: shift(3), dz(3), vacuum
+  character(*), parameter :: fout="tt.xyz"
 
   namelist/unitcell/a0_a, a0_b, a1_a, a1_b, a2_a, a2_b, a3_a, a3_b, nat_a, nat_b
   namelist/basis/bas_a, bas_b, typ_a, typ_b
@@ -100,24 +101,26 @@ program main
   ierr = frac_approx( a0_a/a0_b, h, k, kmax=kmax, nmin=nmin )
   if( ierr /= 0 ) error stop 1
 
+  write(*,*)
   write(*,"(a,1x,f9.6,1x,a,1x,i0,'/',i0)") "frac:",a0_a/a0_b,"has approx integer fractional h/k:",h,k
 
   write(*,*) " repetitions:"
   write(*,"(1x,'k*a0_b = ',i0,'*',g0.6,' = ',f12.6)") k, a0_a, k*a0_a
   write(*,"(1x,'k*a0_b = ',i0,'*',g0.6,' = ',f12.6)") h, a0_b, h*a0_b
-  write(*,*) "error = ", (k*a0_a - h*a0_b)/(k*a0_a)
+  write(*,"(1x,a,1x,e0.6)") "absolute error =", abs(k*a0_a - h*a0_b)
+  write(*,"(1x,a,1x,e0.6)") "relative error =", abs( (k*a0_a - h*a0_b)/(k*a0_a) )
 
 
   ! shift for system b, such that it starts at same value of z as last layer of a
   dz = [0.0_rp, 0.0_rp, real(n_layers_a)-0.5_rp]
   dz = matmul(lat_a, dz)
 
-  open(newunit=u0, file="tt.xyz", status="replace")
+  open(newunit=u0, file=fout, status="replace")
   write(u0, *) nat_a*k*k*n_layers_a + nat_b*h*h*n_layers_b
   write(u0,*) 'Lattice="', lat_a(:,1)*k, lat_a(:,2)*k, &
        lat_a(:,3)*(n_layers_a) &
        + lat_b(:,3)*n_layers_b &
-       - matmul(lat_a,[0.0,0.0,0.5]) &
+       - matmul(lat_a,[0.0_rp, 0.0_rp, 0.5_rp]) &
        + [0.0_rp, 0.0_rp, interlattice_dist + vacuum] &
        , '"'
   ! write sys a, which is repeated k times in xy, and n_layers_a in z
@@ -143,9 +146,8 @@ program main
         end do
      end do
   end do
-
-
   close(u0, status="keep")
 
+  write(*,*) " >> Output written to: "//trim(fout)
 
 end program main

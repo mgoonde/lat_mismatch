@@ -1,0 +1,57 @@
+&unitcell
+
+  !! sys A
+  ! lattice const
+  a0_a = 3.126
+  ! lattice vectors
+  a1_a = 1.0 0.0 0.0
+  a2_a = 0.0 1.0 0.0
+  a3_a = 0.0 0.0 1.0
+  ! number of atms/cell
+  nat_a = 2
+
+  !! sys B
+  ! lattice const
+  a0_b = 3.19
+  ! lattice vectors
+  a1_b = 1.0 0.0 0.0
+  a2_b = 0.0 1.0 0.0
+  a3_b = 0.0 0.0 1.0
+  ! number of atms/cell
+  nat_b = 2
+/
+
+&basis
+  ! atomic basis of A
+  bas_a(:,1) = 0.0 0.0 0.0
+  bas_a(:,2) = 0.5 0.5 0.5
+  ! atomic types
+  typ_a(1) = 1
+  typ_a(2) = 1
+
+  ! atomic basis of B
+  bas_b(:,1) = 0.0 0.0 0.0
+  bas_b(:,2) = 0.5 0.5 0.5
+  ! atomic types
+  typ_b(1) = 2
+  typ_b(2) = 2
+/
+
+
+&frac
+  ! settings for the fractional algo: 
+  !! nmin has priority over kmax (to avoid cases of 1/1 if kmax is too small)
+  nmin=3
+  kmax = 50
+/
+
+&z_spacing
+  !! repetition along z of each system:
+  n_layers_a = 6
+  n_layers_b = 8
+
+  ! distance between layers, in units of distance (angstrom)
+  interlattice_dist = 2.0
+  ! how much vacuum on top (in distance units)
+  vacuum = 10.0
+/
