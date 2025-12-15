@@ -8,21 +8,29 @@ contains
 
   subroutine crist_to_cart( vec, lat, invlat )
     implicit none
-    real(rp), intent(inout) :: vec
+    real(rp), intent(inout) :: vec(3)
     real(rp), intent(in) :: lat(3,3)
     real(rp), intent(in) :: invlat(3,3)
+    vec = matmul( lat, vec )
   end subroutine crist_to_cart
 
   subroutine cart_to_crist( vec, lat, invlat )
     implicit none
-    real(rp), intent(inout) :: vec
+    real(rp), intent(inout) :: vec(3)
     real(rp), intent(in) :: lat(3,3)
     real(rp), intent(in) :: invlat(3,3)
+    vec = matmul( invlat, vec )
   end subroutine cart_to_crist
 
   subroutine periodic( vec )
     implicit none
-    real(rp), intent(inout) :: vec
+    real(rp), intent(inout) :: vec(3)
+    integer :: i
+    do i = 1, 3
+       if( vec(i) .gt. 0.5_rp ) vec(i) = vec(i) - 1.0_rp
+       if( vec(i) .le. -0.5_rp ) vec(i) = vec(i) + 1.0_rp
+    end do
+
   end subroutine periodic
 
 
